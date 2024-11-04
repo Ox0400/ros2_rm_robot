@@ -36,6 +36,7 @@ endif()
 
 add_executable(rm_change_work_frame src/api_ChangeWorkFrame_demo.cpp)
 add_executable(rm_get_state src/api_Get_Arm_State_demo.cpp)
+add_executable(rm_get_gripper_state src/api_Get_Arm_Gripper_State_demo.cpp)
 add_executable(movej_demo src/api_MoveJ_demo.cpp)
 add_executable(movejp_demo src/api_MoveJP_demo.cpp)
 add_executable(movejp_gen72_demo src/api_MoveJP_Gen72_demo.cpp)
@@ -43,6 +44,7 @@ add_executable(movel_demo src/api_MoveL_demo.cpp)
 add_executable(movel_gen72_demo src/api_MoveL_Gen72_demo.cpp)
 
 ament_target_dependencies(rm_change_work_frame rclcpp std_msgs)
+ament_target_dependencies(rm_get_state rclcpp std_msgs rm_ros_interfaces)
 ament_target_dependencies(rm_get_state rclcpp std_msgs rm_ros_interfaces)
 ament_target_dependencies(movej_demo rclcpp std_msgs rm_ros_interfaces)
 ament_target_dependencies(movejp_demo rclcpp std_msgs rm_ros_interfaces)
@@ -54,6 +56,6 @@ install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
-rm_change_work_frame rm_get_state movej_demo movejp_demo movel_demo movejp_gen72_demo movel_gen72_demo
+rm_change_work_frame rm_get_state rm_get_gripper_state movej_demo movejp_demo movel_demo movejp_gen72_demo movel_gen72_demo
   DESTINATION lib/${PROJECT_NAME})
 ament_package()
