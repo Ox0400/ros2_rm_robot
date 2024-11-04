@@ -1049,6 +1049,32 @@ void RmArm::Arm_Set_Gripper_Position_Callback(const rm_ros_interfaces::msg::Grip
     }
 }
 
+
+void RmArm::Arm_Get_Current_Gripper_State_Callback(const std_msgs::msg::Empty::SharedPtr msg)
+{
+    GripperState gripper_state;
+    copy = msg;
+    rm_ros_interfaces::msg::Gripperstate gripper_state_res;
+    u_int32_t res;
+
+    res = Rm_Api.Service_Get_Gripper_State(m_sockhand, &gripper_state);
+    if(res == 0)
+    {
+        gripper_state_res.enable = gripper_state.enable_state; 
+        gripper_state_res.status = gripper_state.status;
+        gripper_state_res.error = gripper_state.error;
+        gripper_state_res.mode = gripper_state.mode;
+        gripper_state_res.current_force = gripper_state.current_force;
+        gripper_state_res.temperature = gripper_state.temperature;
+        gripper_state_res.actpos = gripper_state.actpos;
+
+        this->Get_Current_Gripper_State_Result->publish(gripper_state_res);
+    }
+    else
+    {
+        RCLCPP_INFO (this->get_logger(),"Arm get current gripper state error code is %d\n",res);
+    }
+}
 void RmArm::Arm_Set_Hand_Posture_Callback(const rm_ros_interfaces::msg::Handposture::SharedPtr msg)
 {
     int posture_num;
@@ -1947,6 +1973,11 @@ RmArm::RmArm():
     Set_Gripper_Position_Cmd = this->create_subscription<rm_ros_interfaces::msg::Gripperset>("rm_driver/set_gripper_position_cmd",rclcpp::ParametersQoS(),
         std::bind(&RmArm::Arm_Set_Gripper_Position_Callback,this,std::placeholders::_1),
         sub_opt3);
+    /***************************************************获取手爪当前状态********************************************/
+    Get_Current_Gripper_State_Result = this->create_publisher<rm_ros_interfaces::msg::Gripperstate>("rm_driver/get_current_gripper_state_result", 10);
+    Get_Current_Gripper_State_Cmd = this->create_subscription<std_msgs::msg::Empty>("rm_driver/get_current_gripper_state_cmd",10,
+        std::bind(&RmArm::Arm_Get_Current_Gripper_State_Callback,this,std::placeholders::_1),
+        sub_opt2);
 /*******************************************************************************end*****************************************************************/
 
 /********************************************************************末端工具-五指灵巧手控制************************************************************/

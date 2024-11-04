@@ -53,6 +53,7 @@
 #include "rm_ros_interfaces/msg/jointerrclear.hpp"
 #include "rm_ros_interfaces/msg/gripperset.hpp"
 #include "rm_ros_interfaces/msg/gripperpick.hpp"
+#include "rm_ros_interfaces/msg/gripperstate.hpp"
 #include "rm_ros_interfaces/msg/handangle.hpp"
 #include "rm_ros_interfaces/msg/handforce.hpp"
 #include "rm_ros_interfaces/msg/handposture.hpp"
@@ -142,7 +143,7 @@ rm_ros_interfaces::msg::Jointerrorcode udp_joint_error_code_;       //关节报�
 rm_ros_interfaces::msg::Handstatus udp_hand_status_;
 rm_ros_interfaces::msg::Armoriginalstate Arm_original_state;        //机械臂原始数据（角度+欧拉角）
 rm_ros_interfaces::msg::Armstate Arm_state;                         //机械臂数据（弧度+四元数）
-
+rm_ros_interfaces::msg::Gripperstate Gripper_state;                 //夹爪状态
 
 class RmArm: public rclcpp::Node
 {
@@ -194,6 +195,7 @@ public:
     void Arm_Set_Gripper_Pick_On_Callback(const rm_ros_interfaces::msg::Gripperpick::SharedPtr msg);        //持续力控夹取
     void Arm_Set_Gripper_Pick_Callback(const rm_ros_interfaces::msg::Gripperpick::SharedPtr msg);           //力控夹取
     void Arm_Set_Gripper_Position_Callback(const rm_ros_interfaces::msg::Gripperset::SharedPtr msg);        //移动到固定位置
+    void Arm_Get_Current_Gripper_State_Callback(const std_msgs::msg::Empty::SharedPtr msg);                 //查询状态
     /*********************************灵巧手回调函数******************************/
     void Arm_Set_Hand_Posture_Callback(const rm_ros_interfaces::msg::Handposture::SharedPtr msg);           //设置灵巧手手势
     void Arm_Set_Hand_Seq_Callback(const rm_ros_interfaces::msg::Handseq::SharedPtr msg);                   //设置灵巧手动作序列
@@ -372,6 +374,10 @@ private:
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr Set_Gripper_Position_Result;
     /******************************************手爪到达指定位置夹取订阅器*********************************/
     rclcpp::Subscription<rm_ros_interfaces::msg::Gripperset>::SharedPtr Set_Gripper_Position_Cmd;
+    /**************************************获取手爪当前状态发布器*************************************/
+    rclcpp::Publisher<rm_ros_interfaces::msg::Gripperstate>::SharedPtr Get_Current_Gripper_State_Result;
+    /***************************************获取手爪当前状态订阅器************************************/
+    rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr Get_Current_Gripper_State_Cmd;
 /*****************************************************************end******************************************************************/
 
 /**************************************************************末端工具-五指灵巧手控制******************************************************/
