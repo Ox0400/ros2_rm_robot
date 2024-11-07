@@ -45,7 +45,7 @@ add_executable(movel_gen72_demo src/api_MoveL_Gen72_demo.cpp)
 
 ament_target_dependencies(rm_change_work_frame rclcpp std_msgs)
 ament_target_dependencies(rm_get_state rclcpp std_msgs rm_ros_interfaces)
-ament_target_dependencies(rm_get_state rclcpp std_msgs rm_ros_interfaces)
+ament_target_dependencies(rm_get_gripper_state rclcpp std_msgs rm_ros_interfaces)
 ament_target_dependencies(movej_demo rclcpp std_msgs rm_ros_interfaces)
 ament_target_dependencies(movejp_demo rclcpp std_msgs rm_ros_interfaces)
 ament_target_dependencies(movel_demo rclcpp std_msgs rm_ros_interfaces)
