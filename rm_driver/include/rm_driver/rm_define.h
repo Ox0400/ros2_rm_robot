@@ -47,7 +47,7 @@ typedef SOCKET  SOCKHANDLE;
 typedef int SOCKHANDLE;
 #endif
 
-#define  SDK_VERSION (char*)"4.3.6.t2"
+#define  SDK_VERSION (char*)"4.3.6"
 
 typedef unsigned char byte;
 typedef unsigned short u16;
@@ -535,7 +535,7 @@ typedef struct {
     int cycle;      ///< 广播周期，5ms的倍数，-1：不设置，保持之前的状态
     bool enable;     ///< 使能，是否主动上报
     int port;       ///< 广播的端口号，-1：不设置，保持之前的状态
-    int force_coordinate;       ///< 系统外受力数据的坐标系，0为传感器坐标系 1为当前工作坐标系 2为当前工具坐标系（力传感器版本支持）-1代表不设置，保持之前的状态
+    int force_coordinate; ///< 系统外受力数据的坐标系，0为传感器坐标系 1为当前工作坐标系 2为当前工具坐标系（力传感器版本支持）-1代表不支持传感器
     char ip[28];       ///< 自定义的上报目标IP地址，空字符串代表不设置，保持之前的状态
     UDP_Custom_Config custom;       ///< 自定义项内容
 } Realtime_Push_Config;

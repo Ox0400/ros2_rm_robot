@@ -524,6 +524,8 @@ void RmArm::Arm_Set_Realtime_Push_Callback(const rm_ros_interfaces::msg::Setreal
     udp_hand_g = msg->hand_enable;
     config_enable.joint_speed = 0;
     config_enable.lift_state = 0;
+    config_enable.arm_current_status = 0;
+    config_enable.aloha_state = 0;
     config.custom = config_enable;
     res = Rm_Api.Service_Set_Realtime_Push(m_sockhand, config);
     if(res == 0)
@@ -1471,7 +1473,19 @@ void Udp_RobotStatuscallback(RobotStatus Udp_RM_Callback)
             Udp_RM_Joint.zero_force[i] = Udp_RM_Callback.force_sensor.zero_force[i];
         }
     }
-
+    if(udp_hand_g == true)
+    {
+        for(int i = 0; i < 6; i++)
+        {
+            Udp_RM_Joint.hand_angle[i] = Udp_RM_Callback.handState.hand_angle[i];
+            Udp_RM_Joint.hand_force[i] = Udp_RM_Callback.handState.hand_force[i];
+            Udp_RM_Joint.hand_pos[i] = Udp_RM_Callback.handState.hand_pos[i];
+            Udp_RM_Joint.hand_state[i] = Udp_RM_Callback.handState.hand_state[i];
+            
+        }
+        Udp_RM_Joint.hand_err = Udp_RM_Callback.arm_err;
+    }
+    
     Udp_RM_Joint.joint_position[0] = Udp_RM_Callback.waypoint.position.x;
     Udp_RM_Joint.joint_position[1] = Udp_RM_Callback.waypoint.position.y;
     Udp_RM_Joint.joint_position[2] = Udp_RM_Callback.waypoint.position.z;
@@ -1489,17 +1503,10 @@ void Udp_RobotStatuscallback(RobotStatus Udp_RM_Callback)
     Udp_RM_Joint.sys_err = Udp_RM_Callback.sys_err;
     Udp_RM_Joint.arm_err = Udp_RM_Callback.arm_err;
     Udp_RM_Joint.coordinate = Udp_RM_Callback.force_sensor.coordinate;
-    if(udp_hand_g == true)
-    {
-        for(int i = 0; i < 6; i++)
-        {
-            Udp_RM_Joint.hand_angle[i] = Udp_RM_Callback.handState.hand_angle[i];
-            Udp_RM_Joint.hand_force[i] = Udp_RM_Callback.handState.hand_force[i];
-            Udp_RM_Joint.hand_pos[i] = Udp_RM_Callback.handState.hand_pos[i];
-            Udp_RM_Joint.hand_state[i] = Udp_RM_Callback.handState.hand_state[i];
-        }
-        Udp_RM_Joint.hand_err = Udp_RM_Callback.arm_err;
-    }
+    // if(udp_hand_g == true)
+    // {
+    
+    // }
     
 }
 
@@ -1539,6 +1546,19 @@ void UdpPublisherNode::udp_timer_callback()
         arm_coordinate_.data = Udp_RM_Joint.coordinate;
         this->Arm_Coordinate_Result->publish(arm_coordinate_);
 
+        if(udp_hand_g == true)
+        {
+            for(int i = 0;i<6;i++)
+            {
+                udp_hand_status_.hand_angle[i] = Udp_RM_Joint.hand_angle[i];
+                udp_hand_status_.hand_force[i] = Udp_RM_Joint.hand_force[i];
+                udp_hand_status_.hand_pos[i] = Udp_RM_Joint.hand_pos[i];
+                udp_hand_status_.hand_state[i] = Udp_RM_Joint.hand_state[i];
+            }
+            udp_hand_status_.hand_err = Udp_RM_Joint.arm_err;  
+            this->Hand_Status_Result->publish(udp_hand_status_);
+        }
+        
         if(Udp_RM_Joint.control_version == 2)
         {
             udp_sixforce_.force_fx = Udp_RM_Joint.six_force[0];
@@ -1562,18 +1582,6 @@ void UdpPublisherNode::udp_timer_callback()
             this->One_Force_Result->publish(udp_oneforce_);
             udp_onezeroforce_.force_fz = Udp_RM_Joint.one_zero_force;
             this->One_Zero_Force_Result->publish(udp_onezeroforce_);
-        }
-        if(udp_hand_g == true)
-        {
-            for(int i = 0;i<6;i++)
-            {
-                udp_hand_status_.hand_angle[i] = Udp_RM_Joint.hand_angle[i];
-                udp_hand_status_.hand_force[i] = Udp_RM_Joint.hand_force[i];
-                udp_hand_status_.hand_pos[i] = Udp_RM_Joint.hand_pos[i];
-                udp_hand_status_.hand_state[i] = Udp_RM_Joint.hand_state[i];
-            }
-            udp_hand_status_.hand_err = Udp_RM_Joint.arm_err;  
-            this->Hand_Status_Result->publish(udp_hand_status_);
         }
         if(ctrl_flag == true )
         {
@@ -1739,7 +1747,7 @@ RmArm::RmArm():
     tcp_ip = (char*)arm_ip_.c_str();
     
     tcp_port = tcp_port_;
-    
+    udp_hand_g = udp_hand_;
     while(Arm_Socket_Start_Connect())
     {
         if(ctrl_flag == true )
